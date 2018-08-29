@@ -11,7 +11,7 @@ func TestHashBase64(t *testing.T) {
 	}
 
 	for _, testCase := range table {
-		if result := HashBase64([]byte(testCase[0])); result != testCase[1] {
+		if result := HashBase64(testCase[0]); result != testCase[1] {
 			t.Fatalf("Expected hash %q doesn't match calculated hash: %q", testCase[1], result)
 		}
 	}

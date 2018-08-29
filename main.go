@@ -11,13 +11,14 @@ import (
 )
 
 func main() {
-	port := getEnvStr("PORT", "8080")
+	port := ":" + getEnvStr("PORT", "8080")
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/hash", handleHash)
 
 	srv := &http.Server{
-		Addr: ":" + port,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`hello amigoooosss`))
-		}),
+		Addr:    port,
+		Handler: mux,
 
 		ReadTimeout:       getEnvDuration("READ_TIMEOUT_SECONDS", 10) * time.Second,
 		ReadHeaderTimeout: getEnvDuration("READHEADER_TIMEOUT_SECONDS", 5) * time.Second,
@@ -28,7 +29,7 @@ func main() {
 	signal.Notify(ch, os.Interrupt, os.Kill)
 
 	go func() {
-		log.Printf("Serving on port :%s ...", port)
+		log.Printf("Serving on %q ...", port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal(err)
 		}
