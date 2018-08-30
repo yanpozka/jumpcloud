@@ -2,6 +2,10 @@
 
 ```bash
 make run
+# or
+make build && ./jumpcloud
+# or
+make install && jumpcloud
 ```
 
 ### Test endpoints:
