@@ -28,9 +28,9 @@ cd hashing
 go test -v .
 ```
 
-##### Improvements (only in case the code grows more):
+##### Improvements (only if the code grows more):
  - Move each handler to a new package with its own context
  - Move *stats* logic to a new package
-
-
-##### TODO: more tests :)
+ - Move middlewares to a new package
+ - More tests
+ 
