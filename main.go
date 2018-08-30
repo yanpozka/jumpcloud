@@ -38,7 +38,8 @@ func main() {
 		}
 	}()
 
-	timeout := getEnvDuration("SHUTDOWN_TIMEOUT_SECONDS", 11) * time.Second
+	// has to be > 5 seconds in order to wait for all /hash calls
+	timeout := getEnvDuration("SHUTDOWN_TIMEOUT_SECONDS", 7) * time.Second
 
 	// blocks until we get a terminal OS signal or an explicit /shutdown request
 	//
