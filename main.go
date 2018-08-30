@@ -10,15 +10,18 @@ import (
 	"time"
 )
 
-func main() {
-	port := ":" + getEnvStr("PORT", "8080")
+// TODO: create a Server struct and remove this global channel and move it inside Server,
+// 		 add configuration values like environment vars to Server
+var shutdownCH = make(chan struct{})
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/hash", handleHash)
+func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	port := ":" + getEnvStr("PORT", "8080")
 
 	srv := &http.Server{
 		Addr:    port,
-		Handler: mux,
+		Handler: makeRoutes(),
 
 		ReadTimeout:       getEnvDuration("READ_TIMEOUT_SECONDS", 10) * time.Second,
 		ReadHeaderTimeout: getEnvDuration("READHEADER_TIMEOUT_SECONDS", 5) * time.Second,
@@ -37,11 +40,14 @@ func main() {
 
 	timeout := getEnvDuration("SHUTDOWN_TIMEOUT_SECONDS", 11) * time.Second
 
-	// blocks until we get a terminal OS signal
+	// blocks until we get a terminal OS signal or an explicit /shutdown request
 	//
-	osSignal := <-ch
-
-	log.Printf("Got OS signal: '%v', shuting down the server with timeout: %v ", osSignal, timeout)
+	select {
+	case osSignal := <-ch:
+		log.Printf("Got OS signal: '%v', shuting down the server with timeout: %v ", osSignal, timeout)
+	case <-shutdownCH:
+		log.Printf("Server shutdown has been requested, ending with timeout: %v ", timeout)
+	}
 
 	srv.SetKeepAlivesEnabled(false)
 
